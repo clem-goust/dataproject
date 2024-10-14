@@ -15,10 +15,10 @@ warnings.simplefilter('ignore')
 
 st.title('Garanteo | Web Trafic')
 
-df_campaigns_metrics = pd.read_csv("streamlit\output_streamlit\campaigns_metrics.csv", index_col=0)
-df_sessions = pd.read_csv("streamlit\output_streamlit\sessions.csv", index_col=0)
-df_events = pd.read_csv("streamlit\output_streamlit\events.csv", index_col=0)
-df_campaigns_pagefocus = pd.read_csv("streamlit\output_streamlit\campaigns_pagefocus.csv", index_col=0)
+df_campaigns_metrics = pd.read_csv(r"streamlit/output_streamlit/campaigns_metrics.csv", index_col=0)
+df_sessions = pd.read_csv(r"streamlit/output_streamlit/sessions.csv", index_col=0)
+df_events = pd.read_csv(r"streamlit/output_streamlit/events.csv", index_col=0)
+df_campaigns_pagefocus = pd.read_csv(r"streamlit/output_streamlit/campaigns_pagefocus.csv", index_col=0)
 
 df_left = df_sessions
 df_right = df_events[['event_id','session_id','event_timestamp','event_type','page','referrer','referrer_summary','medium','campaign_id','user_id']]
