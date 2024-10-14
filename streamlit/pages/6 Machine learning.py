@@ -47,7 +47,7 @@ from sklearn.calibration import calibration_curve
 
 ## Chargement des fichiers
 
-df_prospects_metrics = pd.read_csv(r"streamlit\output_streamlit\prospects_metrics.csv", index_col=0)
+df_prospects_metrics = pd.read_csv("streamlit\output_streamlit\prospects_metrics.csv", index_col=0)
 
 # Titre de la page
 

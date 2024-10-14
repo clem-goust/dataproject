@@ -15,9 +15,9 @@ warnings.simplefilter('ignore')
 
 # Chargement des fichiers
 
-df_users_metrics = pd.read_csv(r"streamlit\output_streamlit\users_metrics.csv", index_col=0)
-df_prospects_metrics = pd.read_csv(r"streamlit\output_streamlit\prospects_metrics.csv", index_col=0)
-df_users_segments = pd.read_csv(r"streamlit\output_streamlit\users_segments.csv", index_col=0)
+df_users_metrics = pd.read_csv("streamlit\output_streamlit\users_metrics.csv", index_col=0)
+df_prospects_metrics = pd.read_csv("streamlit\output_streamlit\prospects_metrics.csv", index_col=0)
+df_users_segments = pd.read_csv("streamlit\output_streamlit\users_segments.csv", index_col=0)
 
 # Initialisation des tables
 

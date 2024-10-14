@@ -14,7 +14,7 @@ import streamlit as st
 warnings.simplefilter('ignore')
 
 # Chargement des fichiers
-df_campaigns_metrics = pd.read_csv(r"streamlit\output_streamlit\campaigns_metrics.csv", index_col=0)
+df_campaigns_metrics = pd.read_csv("streamlit\output_streamlit\campaigns_metrics.csv", index_col=0)
 
 dict_choices = {
     'Click':{

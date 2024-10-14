@@ -15,8 +15,8 @@ warnings.simplefilter('ignore')
 
 # Chargement des fichiers
 
-df_prospects_metrics = pd.read_csv(r"streamlit\output_streamlit\prospects_metrics.csv", index_col=0)
-df_scoring = pd.read_csv(r"streamlit\output_streamlit\scoring.csv", index_col=0)
+df_prospects_metrics = pd.read_csv("streamlit\output_streamlit\prospects_metrics.csv", index_col=0)
+df_scoring = pd.read_csv("streamlit\output_streamlit\scoring.csv", index_col=0)
 
 df = pd.merge(df_prospects_metrics, df_scoring, on='user_id')
 
