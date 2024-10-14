@@ -148,7 +148,7 @@ models = {
         RandomForestClassifier(
             bootstrap = True, 
             max_depth = 10, 
-            max_features = 'auto', 
+            max_features = 'sqrt', 
             min_samples_leaf = 1, 
             min_samples_split = 2, 
             n_estimators = 100
