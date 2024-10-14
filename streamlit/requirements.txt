@@ -1,8 +1,8 @@
-networkx==3.1
-numpy==2.1.2
-pandas==2.2.3
-scikit_learn==1.5.2
-scipy==1.14.1
-seaborn==0.13.2
-statsmodels==0.14.0
-matplotlib==3.8.0
+networkx
+numpy
+pandas
+scikit_learn
+scipy
+seaborn
+statsmodels
+matplotlib
