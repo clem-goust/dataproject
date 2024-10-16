@@ -53,6 +53,8 @@ df_prospects_metrics = pd.read_csv(r"streamlit/output_streamlit/prospects_metric
 
 st.title("Garanteo | Machine Learning")
 
+st.markdown("##### *With variables described in Tests of independence*")
+
 # Variables numériques:
 
 df_prospects_num = df_prospects_metrics[[
@@ -261,7 +263,7 @@ with st.expander(label="## Rationale for using machine learning in Project Garan
     )
     with st.container(border=True):
         st.write("**For all these reasons, training a machine learning model seemed particularly appropriate.**")
-
+    
 @st.cache_resource(max_entries=10)
 def train_models(_model_dict=models):
     
@@ -316,9 +318,13 @@ def train_models(_model_dict=models):
             model = _model_dict[key]
 
         model.fit(X_train, y_train)
+        y_fit = model.predict(X_train)
+        y_fit_proba = model.predict_proba(X_train)
         y_pred = model.predict(X_test)
         y_proba = model.predict_proba(X_test)
         result_dict[key]['trained_model']=model
+        result_dict[key]['y_fit']=y_fit
+        result_dict[key]['y_fit_proba']=y_fit_proba
         result_dict[key]['y_pred']=y_pred
         result_dict[key]['y_proba']=y_proba
         result_dict[key]['y_proba_g2']= model.predict_proba(df_group2_Xnorm)
@@ -328,11 +334,12 @@ def train_models(_model_dict=models):
 
 result_dict, X_train, X_test, y_train, y_test = train_models()
 
-tab_0, tab_1, tab_2, tab_3, tab_4 = st.tabs([
+tab_0, tab_1, tab_2, tab_3, tab_4, tab_5 = st.tabs([
     ":robot_face: Model",
+    ":gear: Parameters",
     ":star: Lead scores",
     ":game_die: Probabilities",
-    ":memo: Classification report",
+    ":memo: Training report",
     ":dart: Calibration curve"
 ])
 
@@ -350,8 +357,159 @@ with tab_0:
     st.write(descriptions[model]['pros'])
     st.subheader(f":x: Cons:")
     st.write(descriptions[model]['cons'])
-    
+
 with tab_1:
+    dict_params = {
+        "K Nearest Neighbors":{
+            "selection_method":"GridSearchCV",
+            "params":{
+                "n_neighbors":{
+                    "description":"Number of neighbors to use for classification and probabilities",
+                    "selected_value":3
+                },
+                "weights":{
+                    "description":"Weight function used in prediction. Possibility to give more weight to closer neighbors.",
+                    "selected_value":"uniform"
+                },
+                "p":{
+                    "description":"Distance used. '1' is Manhattan distance, '2' is Euclidian distance",
+                    "selected_value":1
+                }
+            }
+        }, 
+        "Gaussian Naive Bayes":{
+            "selection_method":"Default settings",
+            "params":{
+                "var_smoothing":{
+                    "description":"Portion of the largest variance of all features that is added to variances for calculation stability",
+                    "selected_value":1e-09
+                }
+            }
+        }, 
+        "Support Vector Machine":{
+            "selection_method":"GridSearchCV",
+            "params":{
+                "C":{
+                    "description":"Sets the strength of the regularization applied to the model. The regularization is supposed to offset losses (~ mistakes)",
+                    "selected_value":0.1
+                },
+                "kernel":{
+                    "description":"Specifies the kernel type to be used in the algorithm. Default value: 'linear'. Other values may be used to look for more complex relationships between data if need be",
+                    "selected_value":"linear"
+                }
+            }
+        }, 
+        "Logistic Regression":{
+            "selection_method":"Default settings",
+            "params":{
+                "C":{
+                    "description":"Sets the strength of the regularization applied to the model. The regularization is supposed to offset losses (~ mistakes)",
+                    "selected_value":1
+                },
+                "penalty":{
+                    "description":"Specify the norm of the penalty if any. The penalty reduces the weight of the less meaningful features.",
+                    "selected_value":None
+                },
+                "solver":{
+                    "description":"Algorithm to use in the optimization problem.",
+                    "selected_value":"lbfgs"
+                },
+                "max_iter":{
+                    "description":"Maximum number of iterations taken for the solvers to converge",
+                    "selected_value":100
+                }
+            }
+        }, 
+        "Random Forest":{
+            "selection_method":"GridSearchCV",
+            "params":{
+                'n_estimators':{
+                    "description":"The number of trees in the forest.",
+                    "selected_value":100
+                },
+                'max_depth':{
+                    "description":"The maximum depth (number of nodes) of each decision tree.",
+                    "selected_value":10
+                },
+                'min_samples_split':{
+                    "description":"The minimum number of samples required to split an internal node",
+                    "selected_value":2
+                },
+                'min_samples_leaf':{
+                    "description":"The minimum number of samples required to be at a leaf (end of branch) node.",
+                    "selected_value":1
+                },
+                'max_features':{
+                    "description":"The number of features to consider when looking for the best split",
+                    "selected_value":"sqrt"
+                },
+                'bootstrap':{
+                    "description":"Whether bootstrap samples are used when building trees.",
+                    "selected_value":True
+                }
+            }
+        },
+        "Gradient Boosting":{
+            "selection_method":"GridSearchCV",
+            "params":{
+                'n_estimators':{
+                    "description":"The number of boosting stages to perform.",
+                    "selected_value":100
+                },
+                'learning_rate':{
+                    "description":"Learning rate shrinks the contribution of each tree",
+                    "selected_value":0.1
+                },
+                'max_depth':{
+                    "description":"Maximum depth (number of nodes) of the individual regression estimators (trees)",
+                    "selected_value":3
+                },
+                'min_samples_split':{
+                    "description":"The minimum number of samples required to split an internal node",
+                    "selected_value":2
+                },
+                'min_samples_leaf':{
+                    "description":"The minimum number of samples required to be at a leaf node (end of branch).",
+                    "selected_value":1
+                },
+                'subsample':{
+                    "description":"The fraction of samples to be used for fitting the individual base learners",
+                    "selected_value":1.0
+                },
+                'max_features':{
+                    "description":"The number of features to consider when looking for the best split",
+                    "selected_value":None
+                }
+            }
+        }
+    }
+    st.subheader(f"Model parameters for {model}")
+
+    with st.container():
+        st.write('\n')
+
+    st.markdown("##### :page_facing_up: Description")
+    with st.container(border=True):
+        for key in dict_params[model]['params'].keys(): 
+            st.write(f"- **{key}** : {dict_params[model]['params'][key]['description']}")
+
+    with st.container():
+        st.write('\n')
+    
+    st.markdown("##### :heavy_check_mark: Selection method")
+    with st.container(border=True):
+        st.text(dict_params[model]['selection_method'])
+    
+    with st.container():
+        st.write('\n')
+
+    st.markdown("##### :wrench: Settings")
+    with st.container(border=True):
+        for key in dict_params[model]['params'].keys(): 
+            st.write(f"- **{key}** : {dict_params[model]['params'][key]['selected_value']}")
+
+    
+with tab_2:
     df_scoring = df_prospects_metrics[(df_prospects_metrics['is_presented_prospect']==0)\
                                     & (df_prospects_metrics['is_client']==0)]['user_id'].to_frame().reset_index(drop=True)
 
@@ -367,7 +525,7 @@ with tab_1:
         color='steelblue'
     )
 
-    g.set_axis_labels("\nScore", f"Count\n", fontsize=20)
+    g.set_axis_labels("\nScore", f"Lead count\n", fontsize=20)
     g.set_xticklabels(labels=[1,2,3,4,5], fontsize=20)
     g.set_yticklabels(fontsize=20)
 
@@ -380,9 +538,16 @@ with tab_1:
                 fontsize=15, color='black')
 
     st.subheader(f"Lead scores distribution")
+    st.markdown(f"##### *according to {model}*")
+    with st.expander("See explanations"):
+        st.write('''
+                 - Garanteo asked for a 5-score scale indicating which leads have the higher chances to convert into clients after being called by a sales.\n
+                 - Lead scores are based on the probabilities computed by the trained model.\n
+                 - We take the whole range of computed probabilities, and divide it into five 'bins' of equal width (to obtain a normal distribution, as opposed to a percentile approach). Probabilities falling in the first bin are assigned a score of 1, and so on.
+                 ''')
     st.pyplot(g)
 
-with tab_2:
+with tab_3:
     fig, ax = plt.subplots()
     sns.histplot(
         data=pd.DataFrame(result_dict[model]['y_proba_g2'])[1],
@@ -394,68 +559,134 @@ with tab_2:
     )
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    ax.set(xlabel="Probability", ylabel=f"Count")
-    st.subheader(f"Probabilities distribution")
+    ax.set(xlabel="\nProbability", ylabel=f"Lead count\n")
+    st.subheader(f"Client conversion probabilities for Garanteo's leads")
+    st.markdown(f"##### *according to {model}*")
     st.pyplot(fig)
 
-with tab_3:
-    st.subheader("Report")
-    report = pd.DataFrame(classification_report(y_test, result_dict[model]['y_pred'], output_dict=True))\
-        .rename(lambda x: x.capitalize(), axis=0)\
-        .rename(lambda x: x.capitalize(), axis=1)
-    report = ((report*100).astype(int).astype(str)+"%").drop('Support')
-    report['Accuracy']['Precision']=''
-    report['Accuracy']['Recall']=''
-    st.dataframe(report, use_container_width=True)
-    with st.expander("See explanations"):
-        st.markdown("##### Precision Score")
-        st.write("The precision score is the ability of the classifier not to label as positive a sample that is negative.")
-        st.latex(r"Precision = \frac{True\ positives}{True\ positives + False\ positives}")
-        st.divider()
-        st.markdown("##### Recall Score")
-        st.write("The recall score is the ability of the classifier to find all the positive samples.")
-        st.latex(r"Recall = \frac{True\ positives}{True\ positives + False\ negatives}")
-        st.divider()
-        st.markdown("##### Accuracy Score")
-        st.write("The accuracy score is the ability of the classifier to label correctly.")
-        st.latex(r"Accuracy = \frac{True\ positives + True\ negatives}{Total\ population}")
-        st.divider()
-        st.markdown("##### F1-Score")
-        st.write("The F1 score can be interpreted as a harmonic mean of the precision and recall")
-        st.latex(r"F1 = \frac{2 * True\ positives}{2 * True\ positives + False\ positives + False\ negatives}")
-        st.divider()
-    
-    st.subheader("Confusion matrix")
-    matrix = confusion_matrix(y_test, result_dict[model]['y_pred'])
-    col1a, col1b = st.columns(2)
-    col1a.metric(":green[**True negative**]", matrix[0][0])
-    col1a.metric(":red[**False negative**]", matrix[1][0])
-    col1b.metric(":red[**False positive**]", matrix[0][1])
-    col1b.metric(":green[**True positive**]", matrix[1][1])
-
-    st.subheader("Area Under ROC Curve")
-    st.metric("AUC-ROC", round(roc_auc_score(y_test, result_dict[model]['y_pred']),2))
-    with st.expander("See explanations"):
-        st.markdown("##### Receiver Operating Characteristic (ROC) Curve")
-        st.write("A receiver operating characteristic (ROC) curve is a graphical plot which illustrates the performance of a binary classifier system as its discrimination threshold is varied. It is created by plotting the fraction of true positives out of the positives (~ precision) vs. the fraction of false positives out of the negatives, at various threshold settings")
-        st.divider()
-        st.markdown("##### Area Under ROC Curve")
-        st.write("By computing the area the curve information is summarized in one number. A perfect model has an area of 1 (only true positives, no false negatives). A model with an AUC-ROC of 0.5 is likely to be purely random")
-        st.divider()
-
 with tab_4:
-    prob_true, prob_pred = calibration_curve(y_test, result_dict[model]['y_proba'][:,1], n_bins=10)
+    st.subheader(f"Training report for {model}")
+    with st.expander("See explanations"):
+        st.write('''
+                Here we analyze key classification metrics on both *training* and *testing* samples, to:
+                - Assess the model's performance, and 
+                - Control for under/overfitting.
+                ''')
+    
+    st.markdown("##### Sample")
+    with st.container(border=True):
+        view_options = ['Training sample', 'Testing sample']
+        view = st.selectbox("Select a sample", view_options)
+        dict_view={
+            "Training sample":{
+                "size":X_train.shape[0],
+                "rel_size":"80%",
+                "X":X_train,
+                "y":y_train,
+                "y_pred":result_dict[model]['y_fit']
+            },
+            "Testing sample":{
+                "size":X_test.shape[0],
+                "rel_size":"20%",
+                "X":X_test,
+                "y":y_test,
+                "y_pred":result_dict[model]['y_pred']
+            }
+        }
+        col1, col2 = st.columns(2)
+        col1.metric("Sample size", dict_view[view]['size'])
+        col2.metric("Relative size", dict_view[view]['rel_size'])
+    
+    st.markdown("##### Classification report")
+    with st.container(border=True):
+        report = pd.DataFrame(classification_report(dict_view[view]['y'], dict_view[view]['y_pred'], output_dict=True))\
+            .rename(lambda x: x.capitalize(), axis=0)\
+            .rename(lambda x: x.capitalize(), axis=1)
+        report = ((report*100).astype(int).astype(str)+"%").drop('Support')
+        report['Accuracy']['Precision']=''
+        report['Accuracy']['Recall']=''
+        st.dataframe(report, use_container_width=True)
+        with st.expander("See explanations"):
+            st.markdown("##### Precision Score")
+            st.write("The precision score is the ability of the classifier not to label as positive a sample that is negative.")
+            st.latex(r"Precision = \frac{True\ positives}{True\ positives + False\ positives}")
+            st.divider()
+            st.markdown("##### Recall Score")
+            st.write("The recall score is the ability of the classifier to find all the positive samples.")
+            st.latex(r"Recall = \frac{True\ positives}{True\ positives + False\ negatives}")
+            st.divider()
+            st.markdown("##### Accuracy Score")
+            st.write("The accuracy score is the ability of the classifier to label correctly.")
+            st.latex(r"Accuracy = \frac{True\ positives + True\ negatives}{Total\ population}")
+            st.divider()
+            st.markdown("##### F1-Score")
+            st.write("The F1 score can be interpreted as a harmonic mean of the precision and recall")
+            st.latex(r"F1 = \frac{2 * True\ positives}{2 * True\ positives + False\ positives + False\ negatives}")
+            st.divider()
+    
+    st.markdown("##### Confusion matrix")
+    with st.container(border=True):
+        matrix = confusion_matrix(dict_view[view]['y'], dict_view[view]['y_pred'])
+        col1a, col1b = st.columns(2)
+        col1a.metric(":green[**True negative**]", matrix[0][0])
+        col1a.metric(":red[**False negative**]", matrix[1][0])
+        col1b.metric(":red[**False positive**]", matrix[0][1])
+        col1b.metric(":green[**True positive**]", matrix[1][1])
+
+    st.markdown("##### Area Under ROC Curve")
+    with st.container(border=True):
+        st.metric("AUC-ROC", round(roc_auc_score(dict_view[view]['y'], dict_view[view]['y_pred']),2))
+        with st.expander("See explanations"):
+            st.markdown("##### Receiver Operating Characteristic (ROC) Curve")
+            st.write("A receiver operating characteristic (ROC) curve is a graphical plot which illustrates the performance of a binary classifier system as its discrimination threshold is varied. It is created by plotting the fraction of true positives out of the positives (~ precision) vs. the fraction of false positives out of the negatives, at various threshold settings")
+            st.divider()
+            st.markdown("##### Area Under ROC Curve")
+            st.write("By computing the area the curve information is summarized in one number. A perfect model has an area of 1 (only true positives, no false negatives). A model with an AUC-ROC of 0.5 is likely to be purely random")
+            st.divider()
+
+with tab_5:
+    st.subheader(f'Calibration curve for {model}')
+    view_options = ['Training sample', 'Testing sample']
+    view = st.selectbox("Select a sample", view_options, key=123)
+    dict_view={
+        "Training sample":{
+            "y":y_train,
+            "y_proba":result_dict[model]['y_fit_proba']
+        },
+        "Testing sample":{
+            "y":y_test,
+            "y_proba":result_dict[model]['y_proba']
+        }
+    }
+    prob_true, prob_pred = calibration_curve(dict_view[view]["y"], dict_view[view]["y_proba"][:,1], n_bins=10)
     fig, ax = plt.subplots()
     ax.plot(prob_pred, prob_true, marker='o')
     ax.plot([0, 1], [0, 1], linestyle='--')
     ax.set_xlabel('Predicted probability')
     ax.set_ylabel('Share of positives')
-    st.subheader(f'Calibration curve')
+    st.pyplot(fig)
     with st.expander("See explanations"):
         st.markdown("##### Calibration curve")
         st.write("Well calibrated classifiers are probabilistic classifiers for which the predicted probabilities can be directly interpreted as a confidence level. For instance, a well calibrated (binary) classifier should classify the samples such that among the samples to which it gave a probability value close to, say, 0.8, approximately 80% actually belong to the positive class.")
-    st.markdown(f'#### {model}')
-    st.pyplot(fig)
+
+st.divider()
+
+with st.container():
+    st.write('\n')
+
+with st.expander(label="Technical notes"):
+    st.write('''
+        - The 'prospects' table was enriched with new variables derived from the other three tables
+        - Then, it was subdivided into 3 sets:
+            - Group 1 (train/test group): Prospects already called by the Sales the team, some of whom became client, while others did not
+            - Group 2 (prediction group): Leads, meaning prospects not yet client and not yet called by the Sales team
+            - Group 3 (not used): Prospects who became client without receiving a call
+        - Our variable to predict in Group 2 is : 'is_client'
+        - Our explanatory variables to train the model on Group 1 and to predict 'is_client' in Group 2 are: all other variables described in 'Tests of independence'
+        - We standardize all numerical variables with a 'MinMaxScaler'
+        - We apply the pandas 'get_dummies' method to all categorical variables         
+    ''')
+
 
 with st.expander(label="Model selection"):
     st.write(f'''

@@ -2,13 +2,8 @@
 
 import pandas as pd
 import numpy as np
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-from matplotlib.ticker import FuncFormatter
-import seaborn as sns
 import datetime as dt
 import warnings
-import networkx as nx
 import streamlit as st
 
 warnings.simplefilter('ignore')
@@ -56,7 +51,10 @@ col1, col2, col3, col4 = st.columns(4)
 
 with col1:
     with st.container(height=150, border=True):
-        st.image(f"streamlit/images/{gender}.jpg")
+        try:
+            st.image(f"streamlit/images/{gender}.jpg")
+        except:
+            st.image(f"streamlit/images/123.jpg")
     with st.container(height=150, border=True):
         st.write("Page pref.")
         st.subheader(f"{page_pref}")

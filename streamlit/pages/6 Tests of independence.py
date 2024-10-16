@@ -8,7 +8,6 @@ from matplotlib.ticker import FuncFormatter
 import seaborn as sns
 import datetime as dt
 import warnings
-import networkx as nx
 import streamlit as st
 
 warnings.simplefilter('ignore')
@@ -28,11 +27,13 @@ df_prospects_metrics = pd.read_csv(r"streamlit/output_streamlit/prospects_metric
 # Titre de la page
 
 st.title("Garanteo | Tests of Independence")
+
+st.markdown("##### *For variables used in Machine learning*")
+
 with st.expander(label="## See comments"):
-    st.write(f'''
-            Here we test the mutual independence and (if need be) the correlation of the variables used for machine learning. We want to avoid including multiple variables with equivalent meanings. 
-            '''
-    )
+    st.write(f"Here we test the mutual independence and (if need be) the correlation of the variables used for machine learning. We want to avoid including multiple variables with equivalent meanings.")
+    st.text("- Variable to be predicted: is_client")
+    st.text("- Explanatory variables: all others")
 
 # Variables numériques:
 

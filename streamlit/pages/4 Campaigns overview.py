@@ -8,7 +8,6 @@ from matplotlib.ticker import FuncFormatter
 import seaborn as sns
 import datetime as dt
 import warnings
-import networkx as nx
 import streamlit as st
 
 warnings.simplefilter('ignore')

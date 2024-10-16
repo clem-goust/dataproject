@@ -1,15 +1,5 @@
-import pandas as pd
-import numpy as np
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-from matplotlib.ticker import FuncFormatter
-import seaborn as sns
-import datetime as dt
 import warnings
-import networkx as nx
 import streamlit as st
-
-sns.reset_defaults()
 
 warnings.simplefilter('ignore')
 
